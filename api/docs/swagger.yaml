@@ -1,0 +1,195 @@
+basePath: /
+definitions:
+  db.CreateUserParams:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  db.GetAllUsersRow:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  db.SelectUserRow:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  db.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      token:
+        type: string
+    type: object
+  models.RegisterResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      token:
+        type: string
+    type: object
+  models.UpdateUserResponse:
+    properties:
+      message:
+        type: string
+      updated_user:
+        $ref: '#/definitions/db.User'
+    type: object
+host: localhost:8002
+info:
+  contact: {}
+  description: A Simple Register Web Service
+  title: Web Register
+paths:
+  /getallusers:
+    get:
+      description: Get all user inserted in Database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.GetAllUsersRow'
+            type: array
+      tags:
+      - Users
+  /getuserbyid/{id}:
+    get:
+      description: Get a user by your ID in Database
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response
+          schema:
+            $ref: '#/definitions/db.SelectUserRow'
+      security:
+      - Bearer: []
+      tags:
+      - Users
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login the user using the provided informations
+      parameters:
+      - description: User informations for Login
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "401":
+          description: User not found
+          schema:
+            type: string
+        "500":
+          description: Incorrect email and/or password
+          schema:
+            type: string
+      tags:
+      - Auth
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user using the provided informations
+      parameters:
+      - description: User informations for registration
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/db.CreateUserParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully create user
+          schema:
+            $ref: '#/definitions/models.RegisterResponse'
+        "500":
+          description: Failed to insert User in Database
+          schema:
+            type: string
+      tags:
+      - Auth
+  /updateuser/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a user by your ID in Database
+      parameters:
+      - description: User ID to be updated
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateUserResponse'
+      security:
+      - Bearer: []
+      tags:
+      - Users
+swagger: "2.0"
