@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 	_ "register/docs"
 	"register/internal/database"
@@ -22,7 +23,10 @@ import (
 func main() {
 	e := echo.New()
 
-	e.Use(middleware.CORS())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPost},
+	}))
 	e.Use(middleware.Recover())
 
 	pool, err := database.Connect()
