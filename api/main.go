@@ -9,8 +9,8 @@ import (
 	"register/internal/handler"
 	"register/internal/models"
 
-	"github.com/golang-jwt/jwt/v4"
-	echojwt "github.com/labstack/echo-jwt"
+	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -24,8 +24,9 @@ func main() {
 	e := echo.New()
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPost},
+		AllowCredentials: true,
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPost},
 	}))
 	e.Use(middleware.Recover())
 
@@ -34,7 +35,7 @@ func main() {
 		log.Fatalf("Failed to connect on database: %v", err)
 	}
 
-	e.POST("/user", func(c echo.Context) error {
+	e.POST("/signup", func(c echo.Context) error {
 		return handler.RegisterUserHandler(c, pool)
 	})
 
@@ -46,7 +47,8 @@ func main() {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(models.JwtCustomClaims)
 		},
-		SigningKey: []byte(os.Getenv("SECRET_KEY")),
+		SigningKey:  []byte(os.Getenv("SECRET_KEY")),
+		TokenLookup: "cookie:token",
 	}
 
 	protected := e.Group("")

@@ -1,19 +1,19 @@
-package tools
+package utils
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"register/internal/models"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
-var SecretKey []byte
-
 func GenerateToken(userID uuid.UUID) (string, error) {
-	SecretKey = []byte(os.Getenv("SECRET_KEY"))
+	SecretKey := []byte(os.Getenv("SECRET_KEY"))
 
 	claims := &models.JwtCustomClaims{
 		UserID: userID,
@@ -29,4 +29,16 @@ func GenerateToken(userID uuid.UUID) (string, error) {
 		return "", err
 	}
 	return signedToken, nil
+}
+
+func SetAuthCookie(c echo.Context, token string) {
+	authCookie := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+		Expires:  time.Now().Add(time.Hour * 1),
+	}
+
+	c.SetCookie(authCookie)
 }

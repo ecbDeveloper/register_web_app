@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"register/internal/database/db"
 	"register/internal/models"
-	"register/tools"
+	"register/utils"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -44,7 +44,7 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 		})
 	}
 
-	hashedPassword, err := tools.GenerateHash(user.Password)
+	hashedPassword, err := utils.GenerateHash(user.Password)
 	if err != nil {
 		log.Println("Failed to generate hash password:", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
@@ -64,17 +64,18 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	token, err := tools.GenerateToken(userID)
+	token, err := utils.GenerateToken(userID)
 	if err != nil {
 		log.Println("Failed to generate JWT token: ", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
+	utils.SetAuthCookie(c, token)
+
 	response := models.RegisterResponse{
 		ID:    userID,
 		Name:  user.Name,
 		Email: user.Email,
-		Token: token,
 	}
 
 	return c.JSON(http.StatusCreated, response)
@@ -120,21 +121,22 @@ func LoginHandler(c echo.Context, pool *pgxpool.Pool) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	comp := tools.CompareHashPassword(storedUser.Password, user.Password)
+	comp := utils.CompareHashPassword(storedUser.Password, user.Password)
 	if !comp {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid credentials")
 	}
 
-	token, err := tools.GenerateToken(storedUser.ID)
+	token, err := utils.GenerateToken(storedUser.ID)
 	if err != nil {
 		log.Println("Failed to generate JWT token: ", err)
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
+	utils.SetAuthCookie(c, token)
+
 	response := models.LoginResponse{
 		ID:    storedUser.ID.String(),
 		Email: storedUser.Email,
-		Token: token,
 	}
 
 	return c.JSON(http.StatusOK, response)
