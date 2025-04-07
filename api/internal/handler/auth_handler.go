@@ -39,8 +39,8 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 	}
 
 	if err := user.Validate(); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]error{
-			"fields": err,
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]error{
+			"message": err,
 		})
 	}
 
@@ -56,7 +56,7 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			if pgErr.Code == "23505" {
-				log.Println("Credencias já cadastradas:", err)
+				log.Println("credentials already registered:", err)
 				return echo.NewHTTPError(http.StatusBadRequest, "credentials already registered")
 			}
 		}
@@ -107,8 +107,8 @@ func LoginHandler(c echo.Context, pool *pgxpool.Pool) error {
 	}
 
 	if err = user.Validate(); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]error{
-			"fields": err,
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]error{
+			"message": err,
 		})
 	}
 

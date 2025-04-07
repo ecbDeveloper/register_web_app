@@ -17,7 +17,6 @@ type RegisterResponse struct {
 	ID    uuid.UUID `json:"id"`
 	Name  string    `json:"name"`
 	Email string    `json:"email"`
-	Token string    `json:"token"`
 }
 
 type LoginRequest struct {
@@ -28,7 +27,6 @@ type LoginRequest struct {
 type LoginResponse struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
-	Token string `json:"token"`
 }
 
 func (lr LoginRequest) Validate() error {
