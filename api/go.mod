@@ -2,8 +2,6 @@ module register
 
 go 1.23.0
 
-toolchain go1.23.3
-
 require (
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/golang-jwt/jwt/v5 v5.2.2

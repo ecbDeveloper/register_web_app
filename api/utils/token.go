@@ -37,6 +37,7 @@ func SetAuthCookie(c echo.Context, token string) {
 		Value:    token,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 		Expires:  time.Now().Add(time.Hour * 1),
 	}
 
