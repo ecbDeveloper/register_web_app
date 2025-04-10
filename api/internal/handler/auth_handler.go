@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"regexp"
 	"register/internal/database/db"
 	"register/internal/models"
 	"register/utils"
@@ -50,6 +51,10 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
+	rgx := regexp.MustCompile(`[.-]`)
+	formattedCPF := rgx.ReplaceAllString(user.Cpf, "")
+
+	user.Cpf = formattedCPF
 	user.Password = hashedPassword
 
 	userID, err := queries.CreateUser(ctx, user)

@@ -68,7 +68,7 @@ type GetAllUsersRow struct {
 	Email       string
 	Age         int32
 	PhoneNumber string
-	Cpf         pgtype.Text
+	Cpf         string
 }
 
 func (q *Queries) GetAllUsers(ctx context.Context) ([]GetAllUsersRow, error) {
@@ -109,7 +109,7 @@ type SelectUserRow struct {
 	Email       string
 	Age         int32
 	PhoneNumber string
-	Cpf         pgtype.Text
+	Cpf         string
 }
 
 func (q *Queries) SelectUser(ctx context.Context, id uuid.UUID) (SelectUserRow, error) {
@@ -159,7 +159,7 @@ RETURNING id, name, email, password, created_at, updated_at, cpf, phone_number, 
 type UpdateUserParams struct {
 	Name        string
 	Email       string
-	Cpf         pgtype.Text
+	Cpf         string
 	Age         int32
 	PhoneNumber string
 	Password    string
