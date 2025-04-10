@@ -1,8 +1,8 @@
 -- name: CreateUser :one
 INSERT INTO users (
-    id, name, email, password
+    id, name, email, cpf, phone_number, age, password
 ) VALUES (
-    gen_random_uuid(), $1, $2, $3
+    gen_random_uuid(), $1, $2, $3, $4, $5, $6
 ) 
     RETURNING id;
 
@@ -11,17 +11,20 @@ SELECT id, email, password
 FROM users WHERE email = $1;
 
 -- name: GetAllUsers :many
-SELECT id, name, email 
+SELECT id, name, email, age, phone_number, cpf
 FROM users;
 
 -- name: SelectUser :one
-SELECT id, name, email 
+SELECT id, name, email, age, phone_number, cpf
 FROM users WHERE id = $1;
 
 -- name: UpdateUser :one
 UPDATE users SET name = $1, 
     email = $2,
-    password = $3,
-    updated_at = $4 
-WHERE id = $5
+	cpf = $3,
+	age = $4,
+	phone_number = $5,
+    password = $6,
+    updated_at = $7 
+WHERE id = $8
 RETURNING *;

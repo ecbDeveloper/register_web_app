@@ -72,13 +72,7 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 
 	utils.SetAuthCookie(c, token)
 
-	response := models.RegisterResponse{
-		ID:    userID,
-		Name:  user.Name,
-		Email: user.Email,
-	}
-
-	return c.JSON(http.StatusCreated, response)
+	return c.JSON(http.StatusCreated, "User created successfully")
 }
 
 // Signup Login user

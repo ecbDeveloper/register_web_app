@@ -5,18 +5,11 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
-	"github.com/google/uuid"
 )
 
 type UpdateUserResponse struct {
 	Message     string  `json:"message"`
 	UpdatedUser db.User `json:"updated_user"`
-}
-
-type RegisterResponse struct {
-	ID    uuid.UUID `json:"id"`
-	Name  string    `json:"name"`
-	Email string    `json:"email"`
 }
 
 type LoginRequest struct {

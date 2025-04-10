@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
@@ -16,43 +17,58 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-    id, name, email, password
+    id, name, email, cpf, phone_number, age, password
 ) VALUES (
-    gen_random_uuid(), $1, $2, $3
+    gen_random_uuid(), $1, $2, $3, $4, $5, $6
 ) 
     RETURNING id
 `
 
 type CreateUserParams struct {
-	Name     string
-	Email    string
-	Password string
+	Name        string
+	Email       string
+	Cpf         string
+	PhoneNumber string
+	Age         int32
+	Password    string
 }
 
 func (u CreateUserParams) Validate() error {
 	return validation.ValidateStruct(&u,
 		validation.Field(&u.Email, validation.Required, is.Email),
 		validation.Field(&u.Password, validation.Required),
+		validation.Field(&u.Age, validation.Required, is.Digit),
+		validation.Field(&u.Cpf, validation.Match(regexp.MustCompile(`^\d{3}\.\d{3}\.\d{3}-\d{2}$`))),
+		validation.Field(&u.PhoneNumber, validation.Required, validation.Min(6), validation.Max(150)),
 	)
 }
 
-
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Name, arg.Email, arg.Password)
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Name,
+		arg.Email,
+		arg.Cpf,
+		arg.PhoneNumber,
+		arg.Age,
+		arg.Password,
+	)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, name, email 
+SELECT id, name, email, age, phone_number, cpf
 FROM users
 `
 
 type GetAllUsersRow struct {
-	ID    uuid.UUID
-	Name  string
-	Email string
+	ID          uuid.UUID
+	Name        string
+	Email       string
+	Age         int32
+	PhoneNumber string
+	Cpf         pgtype.Text
 }
 
 func (q *Queries) GetAllUsers(ctx context.Context) ([]GetAllUsersRow, error) {
@@ -64,7 +80,14 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]GetAllUsersRow, error) {
 	var items []GetAllUsersRow
 	for rows.Next() {
 		var i GetAllUsersRow
-		if err := rows.Scan(&i.ID, &i.Name, &i.Email); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Age,
+			&i.PhoneNumber,
+			&i.Cpf,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -76,20 +99,30 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]GetAllUsersRow, error) {
 }
 
 const selectUser = `-- name: SelectUser :one
-SELECT id, name, email 
+SELECT id, name, email, age, phone_number, cpf
 FROM users WHERE id = $1
 `
 
 type SelectUserRow struct {
-	ID    uuid.UUID
-	Name  string
-	Email string
+	ID          uuid.UUID
+	Name        string
+	Email       string
+	Age         int32
+	PhoneNumber string
+	Cpf         pgtype.Text
 }
 
 func (q *Queries) SelectUser(ctx context.Context, id uuid.UUID) (SelectUserRow, error) {
 	row := q.db.QueryRow(ctx, selectUser, id)
 	var i SelectUserRow
-	err := row.Scan(&i.ID, &i.Name, &i.Email)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Age,
+		&i.PhoneNumber,
+		&i.Cpf,
+	)
 	return i, err
 }
 
@@ -114,24 +147,33 @@ func (q *Queries) SelectUserLoginCredentials(ctx context.Context, email string) 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users SET name = $1, 
     email = $2,
-    password = $3,
-    updated_at = $4 
-WHERE id = $5
-RETURNING id, name, email, password, created_at, updated_at
+	cpf = $3,
+	age = $4,
+	phone_number = $5,
+    password = $6,
+    updated_at = $7 
+WHERE id = $8
+RETURNING id, name, email, password, created_at, updated_at, cpf, phone_number, age
 `
 
 type UpdateUserParams struct {
-	Name      string
-	Email     string
-	Password  string
-	UpdatedAt pgtype.Timestamp
-	ID        uuid.UUID
+	Name        string
+	Email       string
+	Cpf         pgtype.Text
+	Age         int32
+	PhoneNumber string
+	Password    string
+	UpdatedAt   pgtype.Timestamp
+	ID          uuid.UUID
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, updateUser,
 		arg.Name,
 		arg.Email,
+		arg.Cpf,
+		arg.Age,
+		arg.PhoneNumber,
 		arg.Password,
 		arg.UpdatedAt,
 		arg.ID,
@@ -144,6 +186,9 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Cpf,
+		&i.PhoneNumber,
+		&i.Age,
 	)
 	return i, err
 }
