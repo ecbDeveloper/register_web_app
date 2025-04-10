@@ -43,3 +43,16 @@ func SetAuthCookie(c echo.Context, token string) {
 
 	c.SetCookie(authCookie)
 }
+
+func UnsetAuthCookie(c echo.Context) {
+	authCookie := &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+		Expires:  time.Now().Add(time.Hour * -1),
+	}
+
+	c.SetCookie(authCookie)
+}

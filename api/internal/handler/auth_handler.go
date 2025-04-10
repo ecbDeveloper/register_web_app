@@ -141,3 +141,9 @@ func LoginHandler(c echo.Context, pool *pgxpool.Pool) error {
 
 	return c.JSON(http.StatusOK, response)
 }
+
+func LogoutHandler(c echo.Context) error {
+	utils.UnsetAuthCookie(c)
+
+	return c.JSON(http.StatusNoContent, "You have been successfully logged out")
+}
