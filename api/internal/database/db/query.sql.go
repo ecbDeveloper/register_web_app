@@ -37,9 +37,9 @@ func (u CreateUserParams) Validate() error {
 	return validation.ValidateStruct(&u,
 		validation.Field(&u.Email, validation.Required, is.Email),
 		validation.Field(&u.Password, validation.Required),
-		validation.Field(&u.Age, validation.Required, is.Digit),
+		validation.Field(&u.Age, validation.Required, validation.Min(6), validation.Max(150)),
 		validation.Field(&u.Cpf, validation.Match(regexp.MustCompile(`^\d{3}\.\d{3}\.\d{3}-\d{2}$`))),
-		validation.Field(&u.PhoneNumber, validation.Required, validation.Min(6), validation.Max(150)),
+		validation.Field(&u.PhoneNumber, validation.Match(regexp.MustCompile(`^\(\d{2}\)\s9\d{4}-\d{4}$`)) ),
 	)
 }
 
