@@ -2,33 +2,55 @@ basePath: /
 definitions:
   db.CreateUserParams:
     properties:
+      age:
+        type: integer
+      cpf:
+        type: string
       email:
         type: string
       name:
         type: string
       password:
         type: string
+      phoneNumber:
+        type: string
     type: object
   db.GetAllUsersRow:
     properties:
+      age:
+        type: integer
+      cpf:
+        type: string
       email:
         type: string
       id:
         type: string
       name:
+        type: string
+      phoneNumber:
         type: string
     type: object
   db.SelectUserRow:
     properties:
+      age:
+        type: integer
+      cpf:
+        type: string
       email:
         type: string
       id:
         type: string
       name:
         type: string
+      phoneNumber:
+        type: string
     type: object
   db.User:
     properties:
+      age:
+        type: integer
+      cpf:
+        type: string
       createdAt:
         type: string
       email:
@@ -38,6 +60,8 @@ definitions:
       name:
         type: string
       password:
+        type: string
+      phoneNumber:
         type: string
       updatedAt:
         type: string
@@ -55,19 +79,6 @@ definitions:
         type: string
       id:
         type: string
-      token:
-        type: string
-    type: object
-  models.RegisterResponse:
-    properties:
-      email:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      token:
-        type: string
     type: object
   models.UpdateUserResponse:
     properties:
@@ -82,6 +93,45 @@ info:
   description: A Simple Register Web Service
   title: Web Register
 paths:
+  /auth/check:
+    get:
+      description: Validates the JWT token from the "token" cookie and returns whether
+        the user is authenticated
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token is valid
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "401":
+          description: Unauthorized or invalid token
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+      tags:
+      - Authentication
+  /auth/logout:
+    post:
+      description: Unsets the authentication cookie to log the user out
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: You have been successfully logged out
+          schema:
+            type: string
+      tags:
+      - Authentication
   /getallusers:
     get:
       description: Get all user inserted in Database
@@ -163,7 +213,7 @@ paths:
         "200":
           description: Successfully create user
           schema:
-            $ref: '#/definitions/models.RegisterResponse'
+            type: string
         "500":
           description: Failed to insert User in Database
           schema:

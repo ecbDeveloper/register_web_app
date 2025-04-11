@@ -15,6 +15,65 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/check": {
+            "get": {
+                "description": "Validates the JWT token from the \"token\" cookie and returns whether the user is authenticated",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Token is valid",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized or invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "description": "Unsets the authentication cookie to log the user out",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "You have been successfully logged out",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/getallusers": {
             "get": {
                 "description": "Get all user inserted in Database",
@@ -142,7 +201,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully create user",
                         "schema": {
-                            "$ref": "#/definitions/models.RegisterResponse"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -195,6 +254,12 @@ const docTemplate = `{
         "db.CreateUserParams": {
             "type": "object",
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "cpf": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -203,12 +268,21 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
                 }
             }
         },
         "db.GetAllUsersRow": {
             "type": "object",
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "cpf": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -216,6 +290,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "phoneNumber": {
                     "type": "string"
                 }
             }
@@ -223,6 +300,12 @@ const docTemplate = `{
         "db.SelectUserRow": {
             "type": "object",
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "cpf": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -231,12 +314,21 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
                 }
             }
         },
         "db.User": {
             "type": "object",
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "cpf": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -250,6 +342,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "phoneNumber": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -275,26 +370,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.RegisterResponse": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "token": {
                     "type": "string"
                 }
             }

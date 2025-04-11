@@ -54,7 +54,7 @@ func main() {
 	protected := e.Group("")
 	protected.Use(echojwt.WithConfig(config))
 
-	protected.POST("/logout", handler.LogoutHandler)
+	protected.GET("/check/auth", handler.CheckAuthToken)
 
 	protected.GET("/user/:id", func(c echo.Context) error {
 		return handler.GetUserByIdHandler(c, pool)
@@ -63,6 +63,8 @@ func main() {
 	protected.GET("/getusers", func(c echo.Context) error {
 		return handler.GetAllUsersHandler(c, pool)
 	})
+
+	protected.POST("/logout", handler.LogoutHandler)
 
 	protected.PUT("/user/:id", func(c echo.Context) error {
 		return handler.UpdateUserHandler(c, pool)

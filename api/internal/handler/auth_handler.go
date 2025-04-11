@@ -22,7 +22,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param user body db.CreateUserParams true "User informations for registration"
-// @Success 200 {object} models.RegisterResponse "Successfully create user"
+// @Success 200 {object} string "Successfully create user"
 // @Failure 500 {object} string "Failed to connect to database"
 // @Failure 500 {object} string "Failed to decode request body"
 // @Failure 500 {object} string "Failed to insert User in Database"
@@ -139,10 +139,4 @@ func LoginHandler(c echo.Context, pool *pgxpool.Pool) error {
 	}
 
 	return c.JSON(http.StatusOK, response)
-}
-
-func LogoutHandler(c echo.Context) error {
-	utils.UnsetAuthCookie(c)
-
-	return c.JSON(http.StatusNoContent, "You have been successfully logged out")
 }

@@ -71,7 +71,7 @@ func GetUserByIdHandler(c echo.Context, pool *pgxpool.Pool) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-// UpdateUser Update user by id from Databse
+// UpdateUser Update user by id from Database
 // @Description Update a user by your ID in Database
 // @Tags Users
 // @Accept json

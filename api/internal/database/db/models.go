@@ -5,8 +5,9 @@
 package db
 
 import (
+	"time"
+
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type User struct {
@@ -14,8 +15,8 @@ type User struct {
 	Name        string
 	Email       string
 	Password    string
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 	Cpf         string
 	PhoneNumber string
 	Age         int32
