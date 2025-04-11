@@ -51,7 +51,8 @@ func UnsetAuthCookie(c echo.Context) {
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
-		Expires:  time.Now().Add(time.Hour * -1),
+		Path:     "/",
+		MaxAge:   -1,
 	}
 
 	c.SetCookie(authCookie)
