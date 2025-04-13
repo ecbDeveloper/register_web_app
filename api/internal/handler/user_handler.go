@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"register/internal/database/db"
 	"register/internal/models"
+	"register/utils"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -27,6 +28,17 @@ func GetAllUsersHandler(c echo.Context, pool *pgxpool.Pool) error {
 	ctx := context.Background()
 
 	queries := db.New(pool)
+
+	userToken, err := utils.GetUserTokenFromContext(c)
+	if err != nil {
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	if userToken.Role != models.RoleAdmin {
+		log.Println("insufficient role")
+		return echo.NewHTTPError(http.StatusUnauthorized, "Access denied: insufficient role")
+	}
 
 	users, err := queries.GetAllUsers(ctx)
 	if err != nil {

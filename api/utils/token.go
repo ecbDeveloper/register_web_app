@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -30,6 +31,20 @@ func GenerateToken(userID uuid.UUID) (string, error) {
 		return "", err
 	}
 	return signedToken, nil
+}
+
+func GetUserTokenFromContext(c echo.Context) (*models.JwtCustomClaims, error) {
+	userToken, ok := c.Get("user").(*jwt.Token)
+	if !ok {
+		return nil, errors.New("token JWT didn't find on context")
+	}
+
+	claims, ok := userToken.Claims.(*models.JwtCustomClaims)
+	if !ok {
+		return nil, errors.New("failed to convert claims")
+	}
+
+	return claims, nil
 }
 
 func SetAuthCookie(c echo.Context, token string) {
