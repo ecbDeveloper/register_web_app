@@ -10,6 +10,7 @@ import (
 	"register/internal/database/db"
 	"register/internal/models"
 	"register/utils"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -50,12 +51,12 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 		log.Println("Failed to generate hash password:", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
+	user.Password = hashedPassword
 
 	rgx := regexp.MustCompile(`[.-]`)
-	formattedCPF := rgx.ReplaceAllString(user.Cpf, "")
+	user.Cpf = rgx.ReplaceAllString(user.Cpf, "")
 
-	user.Cpf = formattedCPF
-	user.Password = hashedPassword
+	user.Email = strings.ToLower(user.Email)
 
 	userID, err := queries.CreateUser(ctx, user)
 	if err != nil {
@@ -111,7 +112,7 @@ func LoginHandler(c echo.Context, pool *pgxpool.Pool) error {
 		})
 	}
 
-	storedUser, err := queries.SelectUserLoginCredentials(ctx, user.Email)
+	storedUser, err := queries.SelectUserLoginCredentials(ctx, strings.ToLower(user.Email))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid credentials")
