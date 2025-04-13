@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"regexp"
 	"register/internal/database/db"
 	"register/internal/models"
 	"register/utils"
@@ -115,6 +116,9 @@ func UpdateUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 	}
 
 	user.ID = userIDParsed
+
+	rgx := regexp.MustCompile(`[.-]`)
+	user.Cpf = rgx.ReplaceAllString(user.Cpf, "")
 
 	updatedUser, err := queries.UpdateUser(ctx, user)
 	if err != nil {
