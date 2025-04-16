@@ -15,13 +15,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createUser = `-- name: CreateUser :one
+const createUser = `-- name: CreateUser :exec
 INSERT INTO users (
     id, name, email, cpf, phone_number, age, password
 ) VALUES (
     gen_random_uuid(), $1, $2, $3, $4, $5, $6
-) 
-    RETURNING id
+)
 `
 
 type CreateUserParams struct {
@@ -43,8 +42,8 @@ func (u CreateUserParams) Validate() error {
 	)
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createUser,
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
+	_, err := q.db.Exec(ctx, createUser,
 		arg.Name,
 		arg.Email,
 		arg.Cpf,
@@ -52,9 +51,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 		arg.Age,
 		arg.Password,
 	)
-	var id uuid.UUID
-	err := row.Scan(&id)
-	return id, err
+	return err
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
@@ -153,7 +150,7 @@ UPDATE users SET name = $1,
     password = $6,
     updated_at = $7 
 WHERE id = $8
-RETURNING id, name, email, password, created_at, updated_at, cpf, phone_number, age
+RETURNING id, name, email, password, created_at, updated_at, cpf, phone_number, age, role
 `
 
 type UpdateUserParams struct {
@@ -189,6 +186,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Cpf,
 		&i.PhoneNumber,
 		&i.Age,
+		&i.Role,
 	)
 	return i, err
 }

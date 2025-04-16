@@ -58,7 +58,7 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 
 	user.Email = strings.ToLower(user.Email)
 
-	userID, err := queries.CreateUser(ctx, user)
+	err = queries.CreateUser(ctx, user)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			if pgErr.Code == "23505" {
@@ -69,14 +69,6 @@ func RegisterUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 		log.Println("Failed to create user: ", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
-
-	token, err := utils.GenerateToken(userID)
-	if err != nil {
-		log.Println("Failed to generate JWT token: ", err)
-		return echo.NewHTTPError(http.StatusInternalServerError)
-	}
-
-	utils.SetAuthCookie(c, token)
 
 	return c.JSON(http.StatusCreated, "User created successfully")
 }
@@ -126,7 +118,7 @@ func LoginHandler(c echo.Context, pool *pgxpool.Pool) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid credentials")
 	}
 
-	token, err := utils.GenerateToken(storedUser.ID)
+	token, err := utils.GenerateToken(pool, ctx, storedUser.ID)
 	if err != nil {
 		log.Println("Failed to generate JWT token: ", err)
 		return echo.NewHTTPError(http.StatusBadRequest)

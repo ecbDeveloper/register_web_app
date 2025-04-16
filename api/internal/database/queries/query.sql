@@ -1,10 +1,9 @@
--- name: CreateUser :one
+-- name: CreateUser :exec
 INSERT INTO users (
     id, name, email, cpf, phone_number, age, password
 ) VALUES (
     gen_random_uuid(), $1, $2, $3, $4, $5, $6
-) 
-    RETURNING id;
+);
 
 -- name: SelectUserLoginCredentials :one
 SELECT id, email, password 

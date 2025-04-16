@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -10,15 +11,35 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 )
 
-func GenerateToken(userID uuid.UUID) (string, error) {
+func GenerateToken(pool *pgxpool.Pool, ctx context.Context, userID uuid.UUID) (string, error) {
 	SecretKey := []byte(os.Getenv("SECRET_KEY"))
+
+	var userRoleFromQuery string
+	err := pool.QueryRow(ctx, `
+		SELECT r.role
+		FROM users u
+		JOIN roles r ON r.id = u.role
+		WHERE u.id = $1;
+	`, userID).Scan(&userRoleFromQuery)
+	if err != nil {
+		log.Println("Failed to fetch user role", err)
+		return "", err
+	}
+
+	var userRole models.Roles
+	if userRoleFromQuery == "admin" {
+		userRole = models.RoleAdmin
+	} else {
+		userRole = models.RoleUser
+	}
 
 	claims := &models.JwtCustomClaims{
 		UserID: userID,
-		Role:   models.RoleUser,
+		Role:   userRole,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 6)),
 		},

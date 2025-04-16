@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"register/internal/database/db"
 	"register/internal/models"
-	"register/utils"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,28 +17,17 @@ import (
 
 // GetAllUsers Get all user from Databse
 // @Description Get all user inserted in Database
-// @Tags Users
+// @Tags Admin
 // @Produce json
 // @Success 200 {array} db.GetAllUsersRow
 // Failure 500 {object} string "Failed to connect to database"
 // Failure 500 {object} string "Failed to fetch users from Database"
 // Failure 500 {object} string "Failed to scan rows from Database"
-// @Router /getallusers [get]
+// @Router /users [get]
 func GetAllUsersHandler(c echo.Context, pool *pgxpool.Pool) error {
 	ctx := context.Background()
 
 	queries := db.New(pool)
-
-	userToken, err := utils.GetUserTokenFromContext(c)
-	if err != nil {
-		log.Println(err)
-		return echo.NewHTTPError(http.StatusInternalServerError)
-	}
-
-	if userToken.Role != models.RoleAdmin {
-		log.Println("insufficient role")
-		return echo.NewHTTPError(http.StatusUnauthorized, "Access denied: insufficient role")
-	}
 
 	users, err := queries.GetAllUsers(ctx)
 	if err != nil {
@@ -60,7 +48,7 @@ func GetAllUsersHandler(c echo.Context, pool *pgxpool.Pool) error {
 // Failure 500 {object} string "Failed to connect to database"
 // Failure 500 {object} string "Failed to fetch users from Database"
 // Failure 500 {object} string "Failed to scan rows from Database"
-// @Router /getuserbyid/{id} [get]
+// @Router /user/{id} [get]
 func GetUserByIdHandler(c echo.Context, pool *pgxpool.Pool) error {
 	ctx := context.Background()
 
@@ -91,11 +79,11 @@ func GetUserByIdHandler(c echo.Context, pool *pgxpool.Pool) error {
 // @Produce json
 // @Param id path int true "User ID to be updated"
 // @Security Bearer
-// @Success	200 {object} models.UpdateUserResponse"
+// @Success	200 {object} models.UpdateUserResponse
 // Failure 500 {object} string "Failed to connect to database"
 // Failure 500 {object} string "Failed to decode Request Body"
 // Failure 500 {object} string "Failed to update user"
-// @Router /updateuser/{id} [put]
+// @Router /user/{id} [put]
 func UpdateUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 	ctx := context.Background()
 

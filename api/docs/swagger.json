@@ -3,7 +3,8 @@
     "info": {
         "description": "A Simple Register Web Service",
         "title": "Web Register",
-        "contact": {}
+        "contact": {},
+        "version": "1.0"
     },
     "host": "localhost:8002",
     "basePath": "/",
@@ -62,61 +63,6 @@
                         "description": "You have been successfully logged out",
                         "schema": {
                             "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/getallusers": {
-            "get": {
-                "description": "Get all user inserted in Database",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.GetAllUsersRow"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/getuserbyid/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Get a user by your ID in Database",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/db.SelectUserRow"
                         }
                     }
                 }
@@ -206,7 +152,38 @@
                 }
             }
         },
-        "/updateuser/{id}": {
+        "/user/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a user by your ID in Database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/db.SelectUserRow"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -237,6 +214,28 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.UpdateUserResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Get all user inserted in Database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetAllUsersRow"
+                            }
                         }
                     }
                 }

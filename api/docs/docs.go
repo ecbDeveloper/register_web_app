@@ -74,61 +74,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/getallusers": {
-            "get": {
-                "description": "Get all user inserted in Database",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.GetAllUsersRow"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/getuserbyid/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Get a user by your ID in Database",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "schema": {
-                            "$ref": "#/definitions/db.SelectUserRow"
-                        }
-                    }
-                }
-            }
-        },
         "/login": {
             "post": {
                 "description": "Login the user using the provided informations",
@@ -213,7 +158,38 @@ const docTemplate = `{
                 }
             }
         },
-        "/updateuser/{id}": {
+        "/user/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a user by your ID in Database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/db.SelectUserRow"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -244,6 +220,28 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.UpdateUserResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Get all user inserted in Database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetAllUsersRow"
+                            }
                         }
                     }
                 }
@@ -390,7 +388,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "localhost:8002",
 	BasePath:         "/",
 	Schemes:          []string{},
