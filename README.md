@@ -21,7 +21,6 @@ This is a user registration system with authentication and authorization, develo
 - **State Management**: Context API 🌐
 - **Additional Libraries**:
   - Axios (HTTP requests) 📡
-  - React Query (asynchronous data management) 🔄
   - Sonner (notifications) 🔔
 
 ## ✨ Features
