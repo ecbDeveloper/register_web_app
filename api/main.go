@@ -36,6 +36,9 @@ func main() {
 		AllowMethods:     []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPost},
 	}))
 	e.Use(middleware.Recover())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `[${time_rfc3339}]  ${status}  ${method}  ${host}${path} ${latency_human}` + "\n",
+	}))
 
 	e.POST("/signup", func(c echo.Context) error {
 		return handler.RegisterUserHandler(c, pool)
@@ -45,19 +48,17 @@ func main() {
 		return handler.LoginHandler(c, pool)
 	})
 
-	protected := e.Group("")
-	{
-		config := echojwt.Config{
-			NewClaimsFunc: func(c echo.Context) jwt.Claims {
-				return new(models.JwtCustomClaims)
-			},
-			SigningKey:  []byte(os.Getenv("SECRET_KEY")),
-			TokenLookup: "cookie:token",
-		}
-		protected.Use(echojwt.WithConfig(config))
+	config := echojwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(models.JwtCustomClaims)
+		},
+		SigningKey:  []byte(os.Getenv("SECRET_KEY")),
+		TokenLookup: "cookie:token",
 	}
 
-	protected.GET("/auth/check", handler.CheckAuthToken)
+	protected := e.Group("")
+
+	protected.Use(echojwt.WithConfig(config))
 
 	protected.POST("/auth/logout", handler.LogoutHandler)
 
@@ -68,6 +69,8 @@ func main() {
 	protected.PUT("/user/:id", func(c echo.Context) error {
 		return handler.UpdateUserHandler(c, pool)
 	})
+
+	protected.GET("/auth/admin", handler.CheckIfUserIsAdmin)
 
 	admin := protected.Group("/admin")
 

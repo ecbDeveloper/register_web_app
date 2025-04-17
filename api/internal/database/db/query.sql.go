@@ -147,9 +147,8 @@ UPDATE users SET name = $1,
 	cpf = $3,
 	age = $4,
 	phone_number = $5,
-    password = $6,
-    updated_at = $7 
-WHERE id = $8
+    updated_at = $6
+WHERE id = $7
 RETURNING id, name, email, password, created_at, updated_at, cpf, phone_number, age, role
 `
 
@@ -159,9 +158,17 @@ type UpdateUserParams struct {
 	Cpf         string
 	Age         int32
 	PhoneNumber string
-	Password    string
 	UpdatedAt   pgtype.Timestamp
 	ID          uuid.UUID
+}
+
+func (u UpdateUserParams) Validate() error {
+	return validation.ValidateStruct(&u,
+		validation.Field(&u.Email, validation.Required, is.Email),
+		validation.Field(&u.Age, validation.Required, validation.Min(6), validation.Max(150)),
+		validation.Field(&u.Cpf, validation.Match(regexp.MustCompile(`^\d{3}\.\d{3}\.\d{3}-\d{2}$`))),
+		validation.Field(&u.PhoneNumber, validation.Match(regexp.MustCompile(`^\(\d{2}\)\s9\d{4}-\d{4}$`)) ),
+	)
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -171,7 +178,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Cpf,
 		arg.Age,
 		arg.PhoneNumber,
-		arg.Password,
 		arg.UpdatedAt,
 		arg.ID,
 	)

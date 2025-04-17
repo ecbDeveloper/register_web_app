@@ -23,7 +23,6 @@ UPDATE users SET name = $1,
 	cpf = $3,
 	age = $4,
 	phone_number = $5,
-    password = $6,
-    updated_at = $7 
-WHERE id = $8
+    updated_at = $6
+WHERE id = $7
 RETURNING *;

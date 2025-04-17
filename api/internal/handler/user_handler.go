@@ -103,6 +103,12 @@ func UpdateUserHandler(c echo.Context, pool *pgxpool.Pool) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
+	if err := user.Validate(); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]error{
+			"message": err,
+		})
+	}
+
 	user.ID = userIDParsed
 
 	rgx := regexp.MustCompile(`[.-]`)
